@@ -1,0 +1,1 @@
+export type SignatureLayout = 'text-only' | 'profile-photo' | 'company-logo' | 'logo-photo-text';

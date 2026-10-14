@@ -1,0 +1,62 @@
+/* Define card width variable for consistent sizing across all card displays */
+:root {
+  --card-width: 28rem; /* 448px - standard business card width */
+}
+
+/* Share modal styles */
+.share-modal {
+  max-width: min(var(--card-width), calc(100% - 2rem));
+  margin-inline: auto;
+  will-change: transform, opacity;
+}
+
+/* Business card display styles - ensure consistent width */
+.business-card-display {
+  width: 100%;
+  max-width: var(--card-width);
+  margin-inline: auto;
+}
+
+
+.business-card-display1 {
+  width: 100%;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+/* Ensure smooth animation */
+.share-modal {
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Tailwind utilities for profile photo positioning */
+.w-26 {
+  width: 6.5rem; /* 104px */
+}
+
+.h-26 {
+  height: 6.5rem; /* 104px */
+}
+
+.-top-13 {
+  top: -3.25rem; /* -52px */
+}
+
+.left-25 {
+  left: 6.25rem; /* 100px */
+}
+
+/* Z-index utilities */
+.z-9999 {
+  z-index: 9999;
+}
+
+.z-999 {
+  z-index: 999;
+}
+
+.z-500 {
+  z-index: 500;
+}

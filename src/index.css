@@ -1,0 +1,154 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 25% 97%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 230 85% 60%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 230 85% 60%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 230 85% 60%;
+    --sidebar-accent: 230 70% 55%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 230 70% 55%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    --chart-2: 142 76% 36%;
+
+    /* Solo brand colors */
+    --solo-blue: 230 85% 60%;
+    --solo-blue-light: 230 70% 70%;
+    --solo-blue-dark: 230 85% 40%;
+    --solo-gray-dark: 215.4 16.3% 46.9%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 230 85% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+
+    --sidebar-background: 220 20% 18%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 230 85% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 230 70% 55%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 230 85% 60%;
+    
+    --chart-2: 142 76% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 py-3 px-4 transition-colors rounded-md;
+  }
+
+  .sidebar-item.active {
+    @apply bg-[#3b73ed];
+  }
+
+  .card-hover {
+    @apply transition-all hover:shadow-md hover:-translate-y-1 hover:border-gray-300 dark:hover:border-gray-600;
+  }
+
+  .animate-enter {
+    @apply animate-fade-in;
+  }
+}
+
+/* CKEditor 5 Dark Mode Overrides */
+.dark .ck.ck-editor__main > .ck-editor__editable,
+.dark .ck.ck-toolbar {
+    background: #0f172a !important; /* bg-slate-900 */
+    border-color: #334155 !important; /* border-slate-700 */
+    color: #f8fafc !important; /* text-slate-50 */
+}
+.dark .ck.ck-toolbar {
+    background: #1e293b !important; /* bg-slate-800 */
+}
+.dark .ck.ck-button {
+    color: #cbd5e1 !important;
+}
+.dark .ck.ck-button:hover, .dark .ck.ck-button.ck-on {
+    background: #334155 !important;
+}
+.dark .ck.ck-toolbar__separator {
+    background: #475569 !important;
+}
+.dark .ck.ck-input-text {
+    background: #0f172a !important;
+    color: white !important;
+    border-color: #334155 !important;
+}
+.dark .ck.ck-list__item > .ck-button:hover {
+    background: #334155 !important;
+}
+.dark .ck.ck-dropdown__panel {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+}

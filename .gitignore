@@ -1,0 +1,33 @@
+# Logs
+.next
+logs
+.env
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.env*
+node_modules
+dist
+dist-ssr
+*.local
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+DuplicateCopy.env
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.next
+media-clock-firebase-adminsdk-fbsvc-cf5c669b81.json
+solobizcards-db-firebase-adminsdk-fbsvc-e717d16385.json
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
