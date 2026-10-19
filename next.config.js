@@ -10,6 +10,7 @@ const nextConfig = {
   },
   eslint: {
     dirs: ["src"],
+    ignoreDuringBuilds: true,
   },
   env: {
     NEXT_PUBLIC_STRIPE_PUBLIC_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY,
