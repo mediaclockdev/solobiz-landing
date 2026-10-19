@@ -213,7 +213,15 @@ export async function completeSignupProfile({
    * its existence is the marker that this account is already set up.
    */
   const existingReferral = await getDoc(doc(db, "referrals", user.uid));
-  if (existingReferral.exists()) return;
+  if (existingReferral.exists()) {
+    await sendEmailVerification(
+      user,
+      verifyContinueUrl
+        ? { url: verifyContinueUrl, handleCodeInApp: false }
+        : undefined,
+    );
+    return;
+  }
 
   await updateProfile(user, { displayName: name });
 

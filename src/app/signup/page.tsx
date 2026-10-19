@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Edit, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, Edit, Eye, EyeOff, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { auth } from "@/services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -30,7 +29,7 @@ export default function SignupPage() {
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
   const handleContinue = () => {
-    if (validateEmail(email)) {
+    if (validateEmail(email.trim())) {
       setStep("password");
       setEmailError("");
     } else {
@@ -80,9 +79,9 @@ export default function SignupPage() {
   };
 
   return (
-    <FunnelFrame>
-      <div className="flex min-h-dvh flex-col bg-background text-foreground">
-        <header className="flex h-12 items-center justify-center border-b bg-white px-4 lg:px-6">
+    <FunnelFrame className="bg-[#f5f5f5]">
+      <div className="flex min-h-dvh flex-col bg-[#f5f5f5] text-foreground font-sans">
+        <header className="flex h-12 items-center justify-center border-b border-[#e5e5e5] bg-[#f5f5f5] px-4 lg:px-6">
           <Link href="/" className="flex items-center justify-center gap-2">
             <span className="font-headline text-base font-bold text-black dark:text-white">
               solo
@@ -90,168 +89,179 @@ export default function SignupPage() {
           </Link>
         </header>
 
-        <main className="flex flex-1 flex-col items-center bg-accent px-4 pt-8">
-          <div className="relative mb-4 w-full max-w-md">
-            <Link
-              href="/"
-              aria-label="Back to home"
-              className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground"
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full bg-background hover:bg-background/80"
+        <main className="flex flex-1 flex-col items-center bg-[#f5f5f5] px-4 pt-8">
+          <div className="relative mb-3 w-full max-w-md flex items-center justify-center">
+            {step === "password" ? (
+              <button
+                type="button"
+                onClick={handleEmailEdit}
+                aria-label="Back to email step"
+                className="absolute left-0 top-1/2 -translate-y-1/2"
               >
-                <ArrowLeft className="h-8 w-8" />
-              </Button>
-            </Link>
-            <h1 className="text-center font-headline text-3xl font-bold text-slate-900 dark:text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm border border-slate-100/80 hover:bg-slate-50 transition-colors">
+                  <ArrowLeft className="h-4 w-4 text-slate-700" />
+                </div>
+              </button>
+            ) : (
+              <Link
+                href="/"
+                aria-label="Back to home"
+                className="absolute left-0 top-1/2 -translate-y-1/2"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm border border-slate-100/80 hover:bg-slate-50 transition-colors">
+                  <ArrowLeft className="h-4 w-4 text-slate-700" />
+                </div>
+              </Link>
+            )}
+            <h1 className="text-center text-[30px] font-bold tracking-tight text-[#0f172a] dark:text-white">
               Sign Up
             </h1>
           </div>
 
-          <div className="mb-8 w-full max-w-md text-center">
-            <p className="text-lg text-muted-foreground">
+          <div className="mb-7 w-full max-w-md text-center">
+            <p className="text-[15px] font-normal text-slate-500">
               Create your account to start networking.
             </p>
           </div>
 
-          <Card className="w-full max-w-md rounded-2xl shadow-sm border border-slate-100 bg-white">
-            <CardContent className="pt-6 transition-all duration-300">
+          <Card className="w-full max-w-md rounded-3xl shadow-sm border border-slate-100 bg-white">
+            <CardContent className="p-7">
               <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="email"
-                      required
-                      autoComplete="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      disabled={step === "password"}
-                      className={cn(step === "password" && "pr-10")}
-                    />
-                    {step === "password" && (
-                      <Button
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-sm font-semibold text-slate-900 block">
+                    Email
+                  </Label>
+                  {step === "password" ? (
+                    <div
+                      onClick={handleEmailEdit}
+                      className="flex h-12 w-full items-center justify-between rounded-xl border border-slate-200/70 bg-[#f4f7fe] px-3.5 text-sm text-slate-600 cursor-pointer transition-colors hover:border-slate-300"
+                    >
+                      <span className="truncate select-none font-normal">{email}</span>
+                      <button
                         type="button"
-                        variant="ghost"
-                        size="icon"
                         aria-label="Change email"
-                        className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-                        onClick={handleEmailEdit}
+                        className="text-slate-500 hover:text-slate-800"
                       >
-                        <Edit className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    )}
-                  </div>
-                  {emailError && (
-                    <p className="text-sm text-destructive">{emailError}</p>
-                  )}
-                </div>
-
-                <div
-                  className={cn(
-                    "-mx-3 px-3 overflow-hidden transition-all duration-500 ease-in-out",
-                    step === "email"
-                      ? "max-h-0 opacity-0"
-                      : "max-h-96 opacity-100",
-                  )}
-                >
-                  {step === "password" && (
-                    <>
-                      <div className="mt-4 space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <div className="relative">
-                          <Input
-                            id="password"
-                            type={isPasswordVisible ? "text" : "password"}
-                            placeholder="password"
-                            required
-                            autoComplete="new-password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="pr-10"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-1 top-1/2 z-10 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            onClick={() => setIsPasswordVisible((v) => !v)}
-                            aria-label={
-                              isPasswordVisible
-                                ? "Hide password"
-                                : "Show password"
-                            }
-                          >
-                            {isPasswordVisible ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 flex items-center space-x-2">
-                        <Checkbox
-                          id="updates"
-                          checked={wantsUpdates}
-                          onCheckedChange={(checked) =>
-                            setWantsUpdates(checked === true)
-                          }
-                          className="data-[state=checked]:bg-black data-[state=checked]:border-black"
-                        />
-                        <label
-                          htmlFor="updates"
-                          className="text-sm font-medium leading-none text-muted-foreground"
-                        >
-                          Yes, send me the latest updates and news
-                        </label>
-                      </div>
-
-                      {formError && (
-                        <div
-                          role="alert"
-                          className="mt-4 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
-                        >
-                          {formError}
-                          {formError.includes("already has an account") && (
-                            <Link
-                              href="/login"
-                              className="ml-1 font-bold underline underline-offset-2 text-slate-900"
-                            >
-                              Log in
-                            </Link>
-                          )}
-                        </div>
+                        <Edit className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="email"
+                        required
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="h-12 text-sm rounded-xl border border-[#e5e5e5] !bg-white focus-visible:ring-black placeholder:text-slate-400 font-normal"
+                        autoFocus
+                      />
+                      {emailError && (
+                        <p className="text-xs text-destructive mt-1.5">{emailError}</p>
                       )}
-
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="mt-4 h-12 w-full rounded-full bg-black text-white hover:bg-neutral-800 font-semibold text-base shadow-sm"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            Creating account...
-                          </>
-                        ) : (
-                          "Sign Up"
-                        )}
-                      </Button>
-                    </>
+                    </div>
                   )}
                 </div>
+
+                {step === "password" && (
+                  <div className="space-y-4 pt-1">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="password" className="text-sm font-semibold text-slate-900 block">
+                        Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={isPasswordVisible ? "text" : "password"}
+                          placeholder="password"
+                          required
+                          autoComplete="new-password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="h-12 text-sm rounded-xl border border-[#e5e5e5] !bg-white pr-10 focus-visible:ring-black placeholder:text-slate-400 font-normal"
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                          onClick={() => setIsPasswordVisible((v) => !v)}
+                          aria-label={
+                            isPasswordVisible
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {isPasswordVisible ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={() => setWantsUpdates(!wantsUpdates)}
+                      className="flex items-center space-x-2.5 pt-0.5 cursor-pointer select-none group"
+                    >
+                      <div
+                        className={cn(
+                          "flex h-4 w-4 shrink-0 items-center justify-center rounded-full transition-colors",
+                          wantsUpdates
+                            ? "bg-[#18181b] text-white"
+                            : "border border-slate-300 bg-white group-hover:border-slate-400",
+                        )}
+                      >
+                        {wantsUpdates && (
+                          <Check className="h-2.5 w-2.5 stroke-[3] text-white" />
+                        )}
+                      </div>
+                      <span className="text-[13px] text-[#475569] font-normal">
+                        Yes, send me the latest updates and news
+                      </span>
+                    </div>
+
+                    {formError && (
+                      <div
+                        role="alert"
+                        className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                      >
+                        {formError}
+                        {formError.includes("already has an account") && (
+                          <Link
+                            href="/login"
+                            className="ml-1 font-bold underline underline-offset-2 text-slate-900"
+                          >
+                            Log in
+                          </Link>
+                        )}
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="h-12 w-full rounded-2xl bg-[#212121] text-white hover:bg-neutral-800 font-semibold text-base mt-2 shadow-sm"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        "Sign Up"
+                      )}
+                    </Button>
+                  </div>
+                )}
 
                 {step === "email" && (
                   <Button
                     type="button"
                     onClick={handleContinue}
-                    className="w-full h-12 rounded-full bg-black text-white hover:bg-neutral-800 font-semibold text-base shadow-sm"
+                    className="h-12 w-full rounded-2xl bg-[#212121] text-white hover:bg-neutral-800 font-semibold text-base mt-2 shadow-sm"
                   >
                     Continue
                   </Button>
@@ -260,22 +270,15 @@ export default function SignupPage() {
             </CardContent>
           </Card>
 
-          <div
-            className={cn(
-              "mt-auto w-full max-w-md pb-8 text-center text-sm text-muted-foreground transition-all duration-500 ease-in-out",
-              step === "email"
-                ? "-translate-y-10 opacity-0"
-                : "translate-y-0 opacity-100",
-            )}
-          >
-            {step === "password" && (
+          {step === "password" && (
+            <div className="mt-8 mb-6 w-full max-w-md text-center text-[13px] text-[#64748b]">
               <p>
                 By clicking &quot;Sign Up&quot; you agree with our{" "}
                 <a
                   href="https://www.solobizcards.com/terms-of-service"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold underline text-slate-900 hover:text-black"
+                  className="font-medium underline underline-offset-2 text-[#334155] hover:text-black"
                 >
                   Terms
                 </a>{" "}
@@ -284,16 +287,16 @@ export default function SignupPage() {
                   href="https://www.solobizcards.com/privacy-policy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold underline text-slate-900 hover:text-black"
+                  className="font-medium underline underline-offset-2 text-[#334155] hover:text-black"
                 >
                   Privacy
                 </a>
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </main>
 
-        <footer className="mt-auto flex w-full shrink-0 flex-col items-center gap-2 border-t py-3 sm:flex-row bg-white">
+        <footer className="mt-auto flex w-full shrink-0 flex-col items-center gap-2 border-t border-[#e5e5e5] py-3 sm:flex-row bg-[#f5f5f5]">
           <nav className="flex w-full justify-between px-4 md:px-6">
             <a
               href="https://www.solobizcards.com/terms-of-service"

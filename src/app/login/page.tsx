@@ -82,17 +82,25 @@ function LoginForm() {
       return;
     }
 
-    setFormError(
+    let friendlyError =
       result.error?.replace(/^Firebase:\s*/i, "") ||
-        "Could not sign you in. Please try again.",
-    );
+      "Could not sign you in. Please try again.";
+    if (
+      friendlyError.includes("auth/invalid-credential") ||
+      friendlyError.includes("auth/wrong-password") ||
+      friendlyError.includes("auth/user-not-found") ||
+      friendlyError.includes("auth/invalid-login-credentials")
+    ) {
+      friendlyError = "Invalid email or password. Please try again.";
+    }
+    setFormError(friendlyError);
     setIsSubmitting(false);
   };
 
   return (
-    <FunnelFrame>
-      <div className="flex min-h-dvh flex-col bg-background text-foreground">
-        <header className="flex h-12 items-center justify-center border-b bg-white px-4 lg:px-6">
+    <FunnelFrame className="bg-[#f5f5f5]">
+      <div className="flex min-h-dvh flex-col bg-[#f5f5f5] text-foreground font-sans">
+        <header className="flex h-12 items-center justify-center border-b border-[#e5e5e5] bg-[#f5f5f5] px-4 lg:px-6">
           <Link href="/" className="flex items-center justify-center gap-2">
             <span className="font-headline text-base font-bold text-black dark:text-white">
               solo
@@ -100,42 +108,64 @@ function LoginForm() {
           </Link>
         </header>
 
-        <main className="flex flex-1 flex-col items-center bg-accent px-4 pt-8">
-          <div className="relative mb-8 w-full max-w-md">
-            <Link
-              href="/"
-              aria-label="Back to home"
-              className="absolute left-0 top-1/2 -translate-y-1/2 text-muted-foreground"
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full bg-background hover:bg-background/80"
+        <main className="flex flex-1 flex-col items-center bg-[#f5f5f5] px-4 pt-8">
+          <div className="relative mb-3 w-full max-w-md flex items-center justify-center">
+            {step === "password" ? (
+              <button
+                type="button"
+                onClick={handleEmailEdit}
+                aria-label="Back to email step"
+                className="absolute left-0 top-1/2 -translate-y-1/2"
               >
-                <ArrowLeft className="h-8 w-8" />
-              </Button>
-            </Link>
-            <h1 className="text-center font-headline text-3xl font-bold text-slate-900 dark:text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm border border-slate-100/80 hover:bg-slate-50 transition-colors">
+                  <ArrowLeft className="h-4 w-4 text-slate-700" />
+                </div>
+              </button>
+            ) : (
+              <Link
+                href="/"
+                aria-label="Back to home"
+                className="absolute left-0 top-1/2 -translate-y-1/2"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm border border-slate-100/80 hover:bg-slate-50 transition-colors">
+                  <ArrowLeft className="h-4 w-4 text-slate-700" />
+                </div>
+              </Link>
+            )}
+            <h1 className="text-center text-[30px] font-bold tracking-tight text-[#0f172a] dark:text-white">
               Log In
             </h1>
           </div>
 
-          <div className="mb-8 w-full max-w-md text-center">
-            <p className="text-muted-foreground">
+          <div className="mb-7 w-full max-w-md text-center">
+            <p className="text-[15px] font-normal text-slate-500">
               Login to your account to start networking.
             </p>
           </div>
 
-          <form
-            onSubmit={handleLogin}
-            className="flex h-full w-full max-w-md flex-col"
-          >
-            <Card className="w-full rounded-2xl shadow-sm border border-slate-100 bg-white">
-              <CardContent className="pt-6 transition-all duration-300">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <div className="relative">
+          <Card className="w-full max-w-md rounded-3xl shadow-sm border border-slate-100 bg-white">
+            <CardContent className="p-7">
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email" className="text-sm font-semibold text-slate-900 block">
+                    Email
+                  </Label>
+                  {step === "password" ? (
+                    <div
+                      onClick={handleEmailEdit}
+                      className="flex h-12 w-full items-center justify-between rounded-xl border border-slate-200/70 bg-[#f4f7fe] px-3.5 text-sm text-slate-600 cursor-pointer transition-colors hover:border-slate-300"
+                    >
+                      <span className="truncate select-none font-normal text-slate-600">{email}</span>
+                      <button
+                        type="button"
+                        aria-label="Change email"
+                        className="text-slate-500 hover:text-slate-800"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
                       <Input
                         id="email"
                         type="email"
@@ -144,150 +174,111 @@ function LoginForm() {
                         autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        disabled={step === "password"}
-                        className={cn(step === "password" && "pr-10")}
+                        className="h-12 text-sm rounded-xl border border-[#e5e5e5] !bg-white focus-visible:ring-black placeholder:text-slate-400 font-normal"
+                        autoFocus
                       />
-                      {step === "password" && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Change email"
-                          className="absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2"
-                          onClick={handleEmailEdit}
-                        >
-                          <Edit className="h-4 w-4 text-muted-foreground" />
-                        </Button>
+                      {emailError && (
+                        <p className="text-xs text-destructive mt-1.5">{emailError}</p>
                       )}
                     </div>
-                    {emailError && (
-                      <p className="text-sm text-destructive">{emailError}</p>
-                    )}
-                  </div>
-
-                  <div
-                    className={cn(
-                      "-mx-3 px-3 overflow-hidden transition-all duration-500 ease-in-out",
-                      step === "email"
-                        ? "max-h-0 opacity-0"
-                        : "max-h-48 opacity-100",
-                    )}
-                  >
-                    {step === "password" && (
-                      <div className="mt-4 space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <div className="relative">
-                          <Input
-                            id="password"
-                            type={isPasswordVisible ? "text" : "password"}
-                            placeholder="password"
-                            required
-                            autoComplete="current-password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="pr-10"
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="absolute right-1 top-1/2 z-10 h-8 w-8 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            onClick={() => setIsPasswordVisible((v) => !v)}
-                            aria-label={
-                              isPasswordVisible
-                                ? "Hide password"
-                                : "Show password"
-                            }
-                          >
-                            {isPasswordVisible ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                        <div className="flex justify-between items-center pt-1">
-                          <Link
-                            href="/signup"
-                            className="text-sm font-medium text-slate-800 hover:text-black hover:underline"
-                          >
-                            Sign Up
-                          </Link>
-                          <Link
-                            href="/forgot"
-                            className="text-sm font-medium text-slate-800 hover:text-black hover:underline"
-                          >
-                            Forgot Password? &rarr;
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {formError && (
-                    <p
-                      role="alert"
-                      className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive"
-                    >
-                      {formError}
-                    </p>
-                  )}
-
-                  {step === "email" && (
-                    <Button
-                      type="button"
-                      onClick={handleContinue}
-                      className="w-full h-12 rounded-full bg-black text-white hover:bg-neutral-800 font-semibold text-base shadow-sm"
-                    >
-                      Continue
-                    </Button>
                   )}
                 </div>
-              </CardContent>
-            </Card>
 
-            <div
-              className={cn(
-                "mt-auto flex w-full flex-col items-center gap-4 pb-8 pt-8 transition-all duration-500 ease-in-out",
-                step === "email"
-                  ? "-translate-y-10 opacity-0"
-                  : "translate-y-0 opacity-100",
-              )}
-            >
-              {step === "password" && (
-                <>
+                {step === "password" && (
+                  <div className="space-y-4 pt-1">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="password" className="text-sm font-semibold text-slate-900 block">
+                        Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={isPasswordVisible ? "text" : "password"}
+                          placeholder="password"
+                          required
+                          autoComplete="current-password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="h-12 text-sm rounded-xl border border-[#e5e5e5] !bg-white pr-10 focus-visible:ring-black placeholder:text-slate-400 font-normal"
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                          onClick={() => setIsPasswordVisible((v) => !v)}
+                          aria-label={
+                            isPasswordVisible
+                              ? "Hide password"
+                              : "Show password"
+                          }
+                        >
+                          {isPasswordVisible ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-0.5 text-xs text-slate-600">
+                      <Link
+                        href="/signup"
+                        className="hover:text-black font-medium"
+                      >
+                        Don&apos;t have an account?{" "}
+                        <span className="font-semibold underline underline-offset-2 text-slate-800">
+                          Sign Up
+                        </span>
+                      </Link>
+                      <Link
+                        href="/forgot"
+                        className="font-medium text-slate-600 hover:text-black hover:underline underline-offset-2"
+                      >
+                        Forgot Password?
+                      </Link>
+                    </div>
+
+                    {formError && (
+                      <div
+                        role="alert"
+                        className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                      >
+                        {formError}
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="h-12 w-full rounded-2xl bg-[#212121] text-white hover:bg-neutral-800 font-semibold text-base mt-2 shadow-sm"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Logging in...
+                        </>
+                      ) : (
+                        "Log In"
+                      )}
+                    </Button>
+                  </div>
+                )}
+
+                {step === "email" && (
                   <Button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="h-12 w-full rounded-full bg-black text-white hover:bg-neutral-800 font-semibold text-base shadow-sm"
+                    className="h-12 w-full rounded-2xl bg-[#212121] text-white hover:bg-neutral-800 font-semibold text-base mt-2 shadow-sm"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Logging in...
-                      </>
-                    ) : (
-                      "Log In"
-                    )}
+                    Continue
                   </Button>
-                  <p className="text-xs text-muted-foreground">
-                    SoloBizCards:{" "}
-                    <a
-                      href="https://solobizcards.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-bold text-slate-900 hover:underline"
-                    >
-                      Learn more &gt;&gt;
-                    </a>
-                  </p>
-                </>
-              )}
-            </div>
-          </form>
+                )}
+              </form>
+            </CardContent>
+          </Card>
         </main>
 
-        <footer className="mt-auto flex w-full shrink-0 flex-col items-center gap-2 border-t py-3 sm:flex-row bg-white">
+        <footer className="mt-auto flex w-full shrink-0 flex-col items-center gap-2 border-t border-[#e5e5e5] py-3 sm:flex-row bg-[#f5f5f5]">
           <nav className="flex w-full justify-between px-4 md:px-6">
             <a
               href="https://www.solobizcards.com/terms-of-service"
