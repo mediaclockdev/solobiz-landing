@@ -91,7 +91,15 @@ function LoginForm() {
       if (res.ok) {
         setResendStatus("A new verification link has been sent to your email!");
       } else {
-        setResendStatus("Could not resend email right now. Please try again shortly.");
+        const errData = await res.json().catch(() => null);
+        if (res.status === 429 || errData?.code === "TOO_MANY_ATTEMPTS_TRY_LATER") {
+          setResendStatus(
+            errData?.error ||
+              "Too many attempts. Verification emails are temporarily rate-limited. Please wait a few minutes.",
+          );
+        } else {
+          setResendStatus("Could not resend email right now. Please try again shortly.");
+        }
       }
     } catch {
       setResendStatus("Could not resend email right now. Please try again shortly.");

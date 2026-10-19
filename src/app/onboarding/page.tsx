@@ -67,6 +67,7 @@ function OnboardingContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [isEmailRateLimited, setIsEmailRateLimited] = useState(false);
 
   const [confirmedEmail, setConfirmedEmail] = useState("");
   const email = confirmedEmail || authUser?.email || emailFromQuery || "your email";
@@ -87,7 +88,7 @@ function OnboardingContent() {
     setConfirmedEmail(targetEmail);
 
     try {
-      await completeSignupProfile({
+      const result = await completeSignupProfile({
         user: authUser,
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim(),
         email: targetEmail,
@@ -99,6 +100,7 @@ function OnboardingContent() {
       });
       // Immediately sign out so user cannot access session until they verify and log in
       await signOut(auth);
+      setIsEmailRateLimited(Boolean(result?.rateLimited));
       setShowPopup(true);
     } catch (error: any) {
       setSaveError(
@@ -385,17 +387,21 @@ function OnboardingContent() {
                 <div className="text-[14px] leading-relaxed text-slate-500">
                   Your account was successfully created.
                   <br />
-                  We&apos;ve sent confirmation instruction to
-                  <br />
                   <span className="mt-0.5 block font-bold text-slate-900">
                     {email}
                   </span>
                 </div>
               </div>
-              <div className="w-full rounded-lg border border-emerald-100 bg-[#f0fff9] p-4 text-[13px] font-medium leading-relaxed text-emerald-700">
-                Please check your spam box too for the email. It may take a few
-                minutes to arrive.
-              </div>
+              {isEmailRateLimited ? (
+                <div className="w-full rounded-lg border border-amber-200 bg-amber-50 p-4 text-[13px] font-medium leading-relaxed text-amber-800 text-left">
+                  Verification email requests are temporarily rate-limited by Firebase due to repeated test attempts. Please wait a few minutes, then proceed to Log In and click &ldquo;Resend verification email&rdquo;.
+                </div>
+              ) : (
+                <div className="w-full rounded-lg border border-emerald-100 bg-[#f0fff9] p-4 text-[13px] font-medium leading-relaxed text-emerald-700">
+                  Please check your spam box too for the email. It may take a few
+                  minutes to arrive.
+                </div>
+              )}
               <div className="flex w-full justify-center pt-2">
                 <button
                   type="button"

@@ -22,19 +22,7 @@ export async function POST(req: Request) {
     const continueUrl = `${landingBaseUrl}/login?verified=true`;
 
     // Generate Firebase verification link using Firebase Admin SDK
-    let firebaseLink: string;
-    try {
-      firebaseLink = await adminAuth.generateEmailVerificationLink(email, {
-        url: continueUrl,
-        handleCodeInApp: false,
-      });
-    } catch (err: any) {
-      console.warn(
-        "Generating link with actionCodeSettings failed, falling back to basic link:",
-        err?.message || err,
-      );
-      firebaseLink = await adminAuth.generateEmailVerificationLink(email);
-    }
+    const firebaseLink = await adminAuth.generateEmailVerificationLink(email);
 
     const parsedUrl = new URL(firebaseLink);
     const oobCode = parsedUrl.searchParams.get("oobCode");
@@ -130,6 +118,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, sent: true });
   } catch (error: any) {
     console.error("Error sending verification email:", error);
+    const msg = String(error?.message || "");
+    const isRateLimit =
+      msg.includes("TOO_MANY_ATTEMPTS_TRY_LATER") ||
+      error?.code === "auth/too-many-requests";
+
+    if (isRateLimit) {
+      return NextResponse.json(
+        {
+          error:
+            "Too many verification attempts. Verification emails are temporarily rate-limited by Firebase. Please wait a few minutes before trying again.",
+          code: "TOO_MANY_ATTEMPTS_TRY_LATER",
+          sent: false,
+        },
+        { status: 429 },
+      );
+    }
+
     return NextResponse.json(
       { error: error?.message || "Failed to send verification email" },
       { status: 500 },
