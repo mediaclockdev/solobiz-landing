@@ -28,7 +28,7 @@ export default function VerifyEmailPage() {
    */
   const destinationAfterVerify = () => {
     const continueUrl = searchParams.get("continueUrl");
-    if (!continueUrl) return "/";
+    if (!continueUrl) return "/login";
 
     /* Must look like a destination before it is resolved: anything else
        ("not a url", a stray word) would resolve against the origin into a
@@ -37,14 +37,15 @@ export default function VerifyEmailPage() {
     const isAbsolute = /^https?:\/\//i.test(continueUrl);
     const isRootRelative =
       continueUrl.startsWith("/") && !continueUrl.startsWith("//");
-    if (!isAbsolute && !isRootRelative) return "/";
+    if (!isAbsolute && !isRootRelative) return "/login";
 
     try {
       const target = new URL(continueUrl, window.location.origin);
-      if (target.origin !== window.location.origin) return "/";
-      return `${target.pathname}${target.search}${target.hash}`;
+      if (target.origin !== window.location.origin) return "/login";
+      const resolved = `${target.pathname}${target.search}${target.hash}`;
+      return resolved.replace(/^\/welcome\/login/, "/login");
     } catch {
-      return "/";
+      return "/login";
     }
   };
 
