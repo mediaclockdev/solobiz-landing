@@ -188,6 +188,55 @@ export interface CompleteSignupProfileInput {
   wantsUpdates?: boolean;
 }
 
+async function dispatchVerificationEmail(
+  user: User,
+  name: string,
+  email: string,
+  verifyContinueUrl?: string,
+) {
+  try {
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://solobiz-landing.vercel.app";
+
+    const res = await fetch("/api/auth/send-verification-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: user.email || email,
+        name,
+        baseUrl: origin,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.sent) {
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn("Custom email dispatch failed, falling back to Firebase SDK:", err);
+  }
+
+  try {
+    await sendEmailVerification(
+      user,
+      verifyContinueUrl
+        ? { url: verifyContinueUrl, handleCodeInApp: false }
+        : undefined,
+    );
+  } catch (sdkErr: any) {
+    if (sdkErr?.code === "auth/unauthorized-continue-uri") {
+      console.warn("Domain not allowlisted for continueUrl; sending verification email without continueUrl.");
+      await sendEmailVerification(user);
+    } else {
+      throw sdkErr;
+    }
+  }
+}
+
 export async function completeSignupProfile({
   user,
   name,
@@ -214,12 +263,7 @@ export async function completeSignupProfile({
    */
   const existingReferral = await getDoc(doc(db, "referrals", user.uid));
   if (existingReferral.exists()) {
-    await sendEmailVerification(
-      user,
-      verifyContinueUrl
-        ? { url: verifyContinueUrl, handleCodeInApp: false }
-        : undefined,
-    );
+    await dispatchVerificationEmail(user, name, email, verifyContinueUrl);
     return;
   }
 
@@ -500,10 +544,5 @@ export async function completeSignupProfile({
     grandchildrenIP: [],
   });
 
-  await sendEmailVerification(
-    user,
-    verifyContinueUrl
-      ? { url: verifyContinueUrl, handleCodeInApp: false }
-      : undefined,
-  );
+  await dispatchVerificationEmail(user, name, email, verifyContinueUrl);
 }

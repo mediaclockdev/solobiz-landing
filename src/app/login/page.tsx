@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Edit, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,24 @@ function LoginForm() {
     () => searchParams.get("verified") === "true",
   );
 
+  const validateEmail = (value: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const initialEmailParam = searchParams.get("email") || "";
+  const [email, setEmail] = useState(() => initialEmailParam);
+  const [step, setStep] = useState<"email" | "password">(() =>
+    validateEmail(initialEmailParam) ? "password" : "email",
+  );
+  const [password, setPassword] = useState("");
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendStatus, setResendStatus] = useState("");
+
+  const hasHandledOobRef = useRef(false);
+
   // If redirected with ?logout=true or ?verified=true, clear any lingering session
   useEffect(() => {
     if (
@@ -37,13 +55,18 @@ function LoginForm() {
     }
     const mode = searchParams.get("mode");
     const oobCode = searchParams.get("oobCode");
-    if (mode === "verifyEmail" && oobCode) {
+    if (mode === "verifyEmail" && oobCode && !hasHandledOobRef.current) {
+      hasHandledOobRef.current = true;
       void (async () => {
         try {
           const res = await verifyEmail(oobCode);
           await signOut(auth);
           if (res.success) {
             setIsVerified(true);
+            if (res.email) {
+              setEmail(res.email);
+              setStep("password");
+            }
           }
         } catch (e) {
           console.error("Verification error on login:", e);
@@ -52,16 +75,30 @@ function LoginForm() {
     }
   }, [searchParams, verifyEmail]);
 
-  const [step, setStep] = useState<"email" | "password">("email");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [formError, setFormError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const validateEmail = (value: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  const handleResendVerification = async () => {
+    if (!email.trim() || isResending) return;
+    setIsResending(true);
+    setResendStatus("");
+    try {
+      const res = await fetch("/api/auth/send-verification-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          baseUrl: window.location.origin,
+        }),
+      });
+      if (res.ok) {
+        setResendStatus("A new verification link has been sent to your email!");
+      } else {
+        setResendStatus("Could not resend email right now. Please try again shortly.");
+      }
+    } catch {
+      setResendStatus("Could not resend email right now. Please try again shortly.");
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   const handleContinue = () => {
     if (validateEmail(email)) {
@@ -271,9 +308,28 @@ function LoginForm() {
                     {formError && (
                       <div
                         role="alert"
-                        className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive"
+                        className="rounded-xl bg-destructive/10 px-3.5 py-2.5 text-xs text-destructive space-y-1.5"
                       >
-                        {formError}
+                        <p>{formError}</p>
+                        {formError.toLowerCase().includes("verify your email") && (
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              onClick={handleResendVerification}
+                              disabled={isResending}
+                              className="font-semibold underline underline-offset-2 hover:opacity-80 disabled:opacity-50 text-slate-800"
+                            >
+                              {isResending
+                                ? "Sending verification email..."
+                                : "Resend verification email"}
+                            </button>
+                            {resendStatus && (
+                              <p className="mt-1 text-emerald-700 font-medium">
+                                {resendStatus}
+                              </p>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 

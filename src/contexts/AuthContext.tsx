@@ -68,7 +68,7 @@ interface AuthContextType {
   }>;
   verifyEmail: (
     oobCode: string
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{ success: boolean; error?: string; email?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -146,6 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const firebaseUser = userCredential.user;
 
       if (!firebaseUser.emailVerified) {
+        await signOut(auth);
         return {
           success: false,
           error: "Please verify your email before logging in.",
@@ -318,45 +319,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifyEmail = async (oobCode: string) => {
     try {
-      // 1. Decode the action code → get the email
-      const info = await checkActionCode(auth, oobCode);
-      const email = info.data.email;
+      // 1. Decode the action code → get the email if available
+      let email = "";
+      try {
+        const info = await checkActionCode(auth, oobCode);
+        email = info.data.email || "";
+      } catch (checkErr) {
+        console.warn("Could not inspect action code before applying:", checkErr);
+      }
 
       // 2. Apply email verification
       await applyActionCode(auth, oobCode);
 
-      // 3. Find user by email from Firestore
-      const q = query(collection(db, "users"), where("email", "==", email));
+      // 3. Find user by email from Firestore and sync active status
+      if (email) {
+        try {
+          const q = query(
+            collection(db, "users"),
+            where("email", "==", email.toLowerCase().trim()),
+          );
+          let querySnapshot = await getDocs(q);
 
-      const querySnapshot = await getDocs(q);
+          // Fallback query with raw email if lowercased didn't match
+          if (querySnapshot.empty && email !== email.toLowerCase().trim()) {
+            querySnapshot = await getDocs(
+              query(collection(db, "users"), where("email", "==", email)),
+            );
+          }
 
-      if (querySnapshot.empty) {
-        return { success: false, error: "User not found" };
+          if (!querySnapshot.empty) {
+            const docSnap = querySnapshot.docs[0];
+            const uid = docSnap.id;
+            const userData = docSnap.data();
+
+            // 4. Update Firestore
+            await updateDoc(doc(db, "users", uid), {
+              isVerify: true,
+              status: "active",
+            });
+
+            // 5. Optional: Send to external API
+            if (userData?.businessCategory && userData?.clientsPreference) {
+              await setDataBase(
+                userData.name || "",
+                email,
+                userData.businessCategory,
+                userData.clientsPreference,
+              ).catch((e) => console.warn("setDataBase error:", e));
+            }
+
+            checkVerification(docSnap.id);
+          }
+        } catch (dbErr) {
+          console.warn("Post-verification Firestore sync error (non-fatal):", dbErr);
+        }
       }
 
-      const docSnap = querySnapshot.docs[0];
-      const uid = docSnap.id;
-      const userData = docSnap.data();
-
-      // 4. Update Firestore
-      await updateDoc(doc(db, "users", uid), {
-        isVerify: true,
-        status: "active",
-      });
-
-      // 5. Optional: Send to your API
-      await setDataBase(
-        userData.name,
-        email,
-        userData.businessCategory,
-        userData.clientsPreference
-      );
-
-      checkVerification(docSnap.id);
-
-      return { success: true };
+      return { success: true, email };
     } catch (err: any) {
-      return { success: false, error: err.message };
+      return { success: false, error: err.message || "Failed to verify email" };
     }
   };
 

@@ -1,41 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/contexts/ToastContext";
 import { auth } from "@/services/firebase";
 import { signOut } from "firebase/auth";
 import FunnelFrame from "@/components/funnel/FunnelFrame";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const { verifyEmail } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");
+  const hasExecutedRef = useRef(false);
 
   useEffect(() => {
+    if (hasExecutedRef.current) return;
+
     const mode = searchParams.get("mode");
     const oobCode = searchParams.get("oobCode");
 
     if (mode === "verifyEmail" && oobCode) {
+      hasExecutedRef.current = true;
       verifyEmail(oobCode).then(async (res) => {
         if (res.success) {
           await signOut(auth);
           setStatus("success");
           setTimeout(() => {
-            router.replace("/login?verified=true");
+            const emailParam = res.email
+              ? `&email=${encodeURIComponent(res.email)}`
+              : "";
+            router.replace(`/login?verified=true${emailParam}`);
           }, 1500);
         } else {
           setStatus("error");
-          setErrorMessage(res.error || "Verification link is invalid or expired.");
+          const rawErr = res.error || "";
+          if (
+            rawErr.includes("invalid-action-code") ||
+            rawErr.includes("expired")
+          ) {
+            setErrorMessage(
+              "This verification link has expired or has already been used. If you have already verified, please proceed to Log In.",
+            );
+          } else {
+            setErrorMessage(rawErr || "Verification link is invalid or expired.");
+          }
         }
       });
     } else {
       setStatus("error");
-      setErrorMessage("No verification code found.");
+      setErrorMessage("No verification code found in this link.");
     }
   }, [searchParams, router, verifyEmail]);
 
@@ -64,7 +80,7 @@ export default function VerifyEmailPage() {
                 Email Verified!
               </h2>
               <p className="text-sm text-slate-500">
-                Redirecting you to Log In to enter your email and password...
+                Redirecting you to Log In to enter your password...
               </p>
             </div>
           )}
@@ -75,9 +91,11 @@ export default function VerifyEmailPage() {
                 <XCircle className="h-8 w-8" />
               </div>
               <h2 className="text-xl font-bold text-slate-900">
-                Verification Failed
+                Verification Notice
               </h2>
-              <p className="text-sm text-destructive">{errorMessage}</p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {errorMessage}
+              </p>
               <button
                 type="button"
                 onClick={() => router.replace("/login")}
@@ -90,5 +108,13 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </FunnelFrame>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="min-h-dvh bg-[#f5f5f5]" />}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
