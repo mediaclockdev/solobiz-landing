@@ -15,7 +15,6 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { completeSignupProfile } from "@/services/signupProfile";
 import FunnelFrame from "@/components/funnel/FunnelFrame";
 import { readReferralCode } from "@/lib/funnel/referral";
-import { useRedirectIfSignedIn } from "@/lib/funnel/useRedirectIfSignedIn";
 
 const BUSINESS_CATEGORIES = [
   "Retail",
@@ -41,9 +40,6 @@ function OnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailFromQuery = searchParams.get("email") || "";
-
-  // Bounces a converted account away.
-  useRedirectIfSignedIn();
 
   const [authUser, setAuthUser] = useState<User | null>(() => auth.currentUser);
   useEffect(() => {

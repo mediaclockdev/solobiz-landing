@@ -7,17 +7,18 @@ import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import FunnelFrame from "@/components/funnel/FunnelFrame";
 import { storeReferralCode } from "@/lib/funnel/referral";
-import { useRedirectIfSignedIn } from "@/lib/funnel/useRedirectIfSignedIn";
+import { auth } from "@/services/firebase";
+import { signOut } from "firebase/auth";
 
 function WelcomeLanding() {
   const searchParams = useSearchParams();
 
-  /* Guarded: after signing in, bouncing straight to destination */
-  useRedirectIfSignedIn();
-
-  /* Park ?ref= if present */
+  /* Park ?ref= if present, and handle clean logout if ?logout=true */
   useEffect(() => {
     storeReferralCode(searchParams.get("ref"));
+    if (searchParams.get("logout") === "true") {
+      void signOut(auth);
+    }
   }, [searchParams]);
 
   return (

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Edit, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,21 +12,23 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import FunnelFrame from "@/components/funnel/FunnelFrame";
 import { auth } from "@/services/firebase";
-import {
-  POST_AUTH_DESTINATION,
-  useRedirectIfSignedIn,
-} from "@/lib/funnel/useRedirectIfSignedIn";
+import { signOut } from "firebase/auth";
 import {
   redirectToMainAppSSO,
   handleLoginSuccess,
 } from "@/lib/funnel/ssoRedirect";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
 
-  // Already signed in? Redirect to destination.
-  useRedirectIfSignedIn();
+  // If redirected with ?logout=true, clear any lingering local auth session
+  useEffect(() => {
+    if (searchParams.get("logout") === "true") {
+      void signOut(auth);
+    }
+  }, [searchParams]);
 
   const [step, setStep] = useState<"email" | "password">("email");
   const [email, setEmail] = useState("");
@@ -331,5 +333,13 @@ export default function LoginPage() {
         </footer>
       </div>
     </FunnelFrame>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-dvh bg-background" />}>
+      <LoginForm />
+    </Suspense>
   );
 }

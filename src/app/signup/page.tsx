@@ -13,13 +13,9 @@ import { cn } from "@/lib/utils";
 import { auth } from "@/services/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import FunnelFrame from "@/components/funnel/FunnelFrame";
-import { useRedirectIfSignedIn } from "@/lib/funnel/useRedirectIfSignedIn";
 
 export default function SignupPage() {
   const router = useRouter();
-
-  // A signed-in visitor has no business on a signup screen.
-  useRedirectIfSignedIn();
 
   const [step, setStep] = useState<"email" | "password">("email");
   const [email, setEmail] = useState("");

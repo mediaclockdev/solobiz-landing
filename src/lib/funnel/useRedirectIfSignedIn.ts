@@ -12,17 +12,15 @@ export const POST_AUTH_DESTINATION =
   "https://solobizcard-rho.vercel.app/";
 
 /**
- * Redirects someone who is already signed in away from auth screens
- * to the Main App via Cross-Domain SSO.
+ * Formerly redirected signed-in visitors away from auth screens.
+ * Auto-redirection on mount is disabled to prevent cross-domain redirect loops
+ * when users log out on the main app or visit/hard-refresh the landing page.
  */
 export function useRedirectIfSignedIn(redirectPath?: string) {
   const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    if (!isLoading && user) {
-      void redirectToMainAppSSO({ redirectPath });
-    }
-  }, [isLoading, user, redirectPath]);
+  // Deliberate no-op: Automatic redirects across domains on mount trap users
+  // and prevent visitors from viewing the landing page or logging in as another user.
 
   return { isCheckingSession: isLoading, isSignedIn: Boolean(user) };
 }
