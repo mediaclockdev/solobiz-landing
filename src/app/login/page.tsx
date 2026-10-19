@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Edit, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Edit, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,14 +21,36 @@ import {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { login, verifyEmail } = useAuth();
 
-  // If redirected with ?logout=true, clear any lingering local auth session
+  const [isVerified, setIsVerified] = useState(
+    () => searchParams.get("verified") === "true",
+  );
+
+  // If redirected with ?logout=true or ?verified=true, clear any lingering session
   useEffect(() => {
-    if (searchParams.get("logout") === "true") {
+    if (
+      searchParams.get("logout") === "true" ||
+      searchParams.get("verified") === "true"
+    ) {
       void signOut(auth);
     }
-  }, [searchParams]);
+    const mode = searchParams.get("mode");
+    const oobCode = searchParams.get("oobCode");
+    if (mode === "verifyEmail" && oobCode) {
+      void (async () => {
+        try {
+          const res = await verifyEmail(oobCode);
+          await signOut(auth);
+          if (res.success) {
+            setIsVerified(true);
+          }
+        } catch (e) {
+          console.error("Verification error on login:", e);
+        }
+      })();
+    }
+  }, [searchParams, verifyEmail]);
 
   const [step, setStep] = useState<"email" | "password">("email");
   const [email, setEmail] = useState("");
@@ -142,6 +164,13 @@ function LoginForm() {
               Login to your account to start networking.
             </p>
           </div>
+
+          {isVerified && (
+            <div className="mb-5 w-full max-w-md rounded-2xl border border-emerald-200 bg-[#f0fff9] p-3.5 text-center text-xs font-medium text-emerald-800 shadow-sm flex items-center justify-center gap-2">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+              <span>Email verified successfully! Please log in to your account.</span>
+            </div>
+          )}
 
           <Card className="w-full max-w-md rounded-3xl shadow-sm border border-slate-100 bg-white">
             <CardContent className="p-7">

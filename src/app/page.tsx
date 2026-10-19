@@ -3,7 +3,7 @@
 import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import FunnelFrame from "@/components/funnel/FunnelFrame";
 import { storeReferralCode } from "@/lib/funnel/referral";
@@ -11,15 +11,21 @@ import { auth } from "@/services/firebase";
 import { signOut } from "firebase/auth";
 
 function WelcomeLanding() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
-  /* Park ?ref= if present, and handle clean logout if ?logout=true */
+  /* Park ?ref= if present, handle clean logout if ?logout=true, or forward verify link */
   useEffect(() => {
     storeReferralCode(searchParams.get("ref"));
     if (searchParams.get("logout") === "true") {
       void signOut(auth);
     }
-  }, [searchParams]);
+    const mode = searchParams.get("mode");
+    const oobCode = searchParams.get("oobCode");
+    if (mode === "verifyEmail" && oobCode) {
+      router.replace(`/verify-email?${searchParams.toString()}`);
+    }
+  }, [searchParams, router]);
 
   return (
     <FunnelFrame>

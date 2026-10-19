@@ -11,7 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { auth } from "@/services/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, User, signOut } from "firebase/auth";
 import { completeSignupProfile } from "@/services/signupProfile";
 import FunnelFrame from "@/components/funnel/FunnelFrame";
 import { readReferralCode } from "@/lib/funnel/referral";
@@ -68,7 +68,8 @@ function OnboardingContent() {
   const [saveError, setSaveError] = useState("");
   const [showPopup, setShowPopup] = useState(false);
 
-  const email = authUser?.email || emailFromQuery || "your email";
+  const [confirmedEmail, setConfirmedEmail] = useState("");
+  const email = confirmedEmail || authUser?.email || emailFromQuery || "your email";
 
   const handleFinish = async () => {
     if (isSaving) return;
@@ -82,18 +83,22 @@ function OnboardingContent() {
 
     setSaveError("");
     setIsSaving(true);
+    const targetEmail = authUser.email || emailFromQuery;
+    setConfirmedEmail(targetEmail);
 
     try {
       await completeSignupProfile({
         user: authUser,
         name: `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim(),
-        email: authUser.email || emailFromQuery,
+        email: targetEmail,
         businessCategory: formData.category,
         clientsPreference: formData.preference,
         referralCode: readReferralCode(),
         wantsUpdates: searchParams.get("updates") !== "0",
-        verifyContinueUrl: `${window.location.origin}/login`,
+        verifyContinueUrl: `${window.location.origin}/login?verified=true`,
       });
+      // Immediately sign out so user cannot access session until they verify and log in
+      await signOut(auth);
       setShowPopup(true);
     } catch (error: any) {
       setSaveError(
@@ -358,7 +363,15 @@ function OnboardingContent() {
           </nav>
         </footer>
 
-        <Dialog open={showPopup} onOpenChange={setShowPopup}>
+        <Dialog
+          open={showPopup}
+          onOpenChange={(open) => {
+            setShowPopup(open);
+            if (!open) {
+              router.replace("/login");
+            }
+          }}
+        >
           <DialogContent className="max-w-[400px] rounded-3xl p-6">
             <DialogTitle className="sr-only">Account Created</DialogTitle>
             <div className="flex flex-col items-center text-center space-y-4">
