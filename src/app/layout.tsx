@@ -69,13 +69,6 @@ export async function generateMetadata(): Promise<Metadata> {
       description: "Free! biz cards for small businesses",
       images: [imageUrl],
     },
-    icons: {
-      icon: [
-        { url: "/icon.svg", type: "image/svg+xml" },
-        { url: "/favicon.ico", sizes: "any" },
-      ],
-      apple: "/apple-icon.png",
-    },
   };
 
   return metadata;

@@ -8,7 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { auth } from "@/services/firebase";
 import { onAuthStateChanged, User, signOut } from "firebase/auth";
@@ -70,6 +75,15 @@ function OnboardingContent() {
 
   const [confirmedEmail, setConfirmedEmail] = useState("");
   const email = confirmedEmail || authUser?.email || emailFromQuery || "your email";
+
+  const navigateToLogin = () => {
+    const targetEmail = confirmedEmail || authUser?.email || emailFromQuery;
+    const target =
+      targetEmail && targetEmail !== "your email"
+        ? `/login?email=${encodeURIComponent(targetEmail)}`
+        : "/login";
+    router.replace(target);
+  };
 
   const handleFinish = async () => {
     if (isSaving) return;
@@ -368,12 +382,15 @@ function OnboardingContent() {
           onOpenChange={(open) => {
             setShowPopup(open);
             if (!open) {
-              router.replace("/login");
+              navigateToLogin();
             }
           }}
         >
-          <DialogContent className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bottom-auto w-[calc(100%-2rem)] max-w-[420px] rounded-3xl sm:rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bottom-auto w-[calc(100%-2rem)] max-w-[420px] rounded-3xl sm:rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto duration-200 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[state=open]:slide-in-from-bottom-0 data-[state=closed]:slide-out-to-bottom-0 [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:p-1.5 hover:[&>button]:bg-slate-100">
             <DialogTitle className="sr-only">Account Created</DialogTitle>
+            <DialogDescription className="sr-only">
+              Your account was successfully created. Please check your email for confirmation instructions.
+            </DialogDescription>
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 shadow-sm">
                 <Mail className="h-8 w-8 stroke-[1.5px] text-emerald-600" />
@@ -385,7 +402,7 @@ function OnboardingContent() {
                 <div className="text-[14px] leading-relaxed text-slate-500">
                   Your account was successfully created.
                   <br />
-                  We&apos;ve sent confirmation instruction to
+                  We&apos;ve sent confirmation instructions to
                   <br />
                   <span className="mt-0.5 block font-bold text-slate-900 break-all">
                     {email}
@@ -399,7 +416,7 @@ function OnboardingContent() {
               <div className="w-full pt-2">
                 <button
                   type="button"
-                  onClick={() => router.replace("/login")}
+                  onClick={navigateToLogin}
                   className="group flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-black text-sm font-semibold text-white shadow-sm transition-all hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
                 >
                   Continue to Log In
