@@ -101,7 +101,7 @@ function WelcomeLanding() {
               href="https://www.solobizcards.com/terms-of-service"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Terms
             </a>
@@ -109,7 +109,7 @@ function WelcomeLanding() {
               href="https://www.solobizcards.com/privacy-policy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Privacy
             </a>
@@ -117,7 +117,7 @@ function WelcomeLanding() {
               href="https://www.solobizcards.com/pricing"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Subscription
             </a>
@@ -125,7 +125,7 @@ function WelcomeLanding() {
               href="https://www.solobizcards.com/support"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Help
             </a>
@@ -133,7 +133,7 @@ function WelcomeLanding() {
               href="https://www.solobizcards.com/accessories"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Shop
             </a>

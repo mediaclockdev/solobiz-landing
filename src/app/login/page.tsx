@@ -295,7 +295,7 @@ function LoginForm() {
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center pt-0.5 text-xs text-slate-600">
+                    <div className="flex justify-between items-center pt-0.5 text-sm text-slate-600">
                       <Link
                         href="/signup"
                         className="hover:text-black font-medium"
@@ -371,7 +371,7 @@ function LoginForm() {
           </Card>
         </main>
 
-        <footer className="mt-auto flex w-full shrink-0 flex-col items-center gap-2 border-t border-[#e5e5e5] py-3 sm:flex-row bg-[#f5f5f5]">
+        {/* <footer className="mt-auto flex w-full shrink-0 flex-col items-center gap-2 border-t border-[#e5e5e5] py-3 sm:flex-row bg-[#f5f5f5]">
           <nav className="flex w-full justify-between px-4 md:px-6">
             <a
               href="https://www.solobizcards.com/terms-of-service"
@@ -414,7 +414,7 @@ function LoginForm() {
               Shop
             </a>
           </nav>
-        </footer>
+        </footer> */}
       </div>
     </FunnelFrame>
   );
