@@ -166,12 +166,12 @@ function OnboardingContent() {
                   : "Clients/Leads Preference"}
             </h1>
             {step === 2 && (
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-base text-slate-500">
                 Select the category that best describe your business.
               </p>
             )}
             {step === 3 && (
-              <p className="mt-1 text-sm text-slate-500">Select Preference</p>
+              <p className="mt-1 text-base text-slate-500">Select Preference</p>
             )}
           </div>
 
@@ -324,7 +324,7 @@ function OnboardingContent() {
               href="https://www.solobizcards.com/terms-of-service"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Terms
             </a>
@@ -332,7 +332,7 @@ function OnboardingContent() {
               href="https://www.solobizcards.com/privacy-policy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Privacy
             </a>
@@ -340,7 +340,7 @@ function OnboardingContent() {
               href="https://www.solobizcards.com/pricing"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Subscription
             </a>
@@ -348,7 +348,7 @@ function OnboardingContent() {
               href="https://www.solobizcards.com/support"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Help
             </a>
@@ -356,7 +356,7 @@ function OnboardingContent() {
               href="https://www.solobizcards.com/accessories"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Shop
             </a>
@@ -372,14 +372,14 @@ function OnboardingContent() {
             }
           }}
         >
-          <DialogContent className="max-w-[400px] rounded-3xl p-6">
+          <DialogContent className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bottom-auto w-[calc(100%-2rem)] max-w-[420px] rounded-3xl sm:rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <DialogTitle className="sr-only">Account Created</DialogTitle>
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="flex h-16 w-16 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 shadow-sm">
                 <Mail className="h-8 w-8 stroke-[1.5px] text-emerald-600" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
                   Success!
                 </h2>
                 <div className="text-[14px] leading-relaxed text-slate-500">
@@ -387,20 +387,20 @@ function OnboardingContent() {
                   <br />
                   We&apos;ve sent confirmation instruction to
                   <br />
-                  <span className="mt-0.5 block font-bold text-slate-900">
+                  <span className="mt-0.5 block font-bold text-slate-900 break-all">
                     {email}
                   </span>
                 </div>
               </div>
-              <div className="w-full rounded-lg border border-emerald-100 bg-[#f0fff9] p-4 text-[13px] font-medium leading-relaxed text-emerald-700">
+              <div className="w-full rounded-xl border border-emerald-100 bg-[#f0fff9] p-4 text-[13px] font-medium leading-relaxed text-emerald-700">
                 Please check your spam box too for the email. It may take a few
                 minutes to arrive.
               </div>
-              <div className="flex w-full justify-center pt-2">
+              <div className="w-full pt-2">
                 <button
                   type="button"
                   onClick={() => router.replace("/login")}
-                  className="group flex items-center gap-2 text-sm font-bold text-slate-500 transition-colors hover:text-slate-800"
+                  className="group flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-black text-sm font-semibold text-white shadow-sm transition-all hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
                 >
                   Continue to Log In
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

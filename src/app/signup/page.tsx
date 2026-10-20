@@ -119,7 +119,7 @@ export default function SignupPage() {
           </div>
 
           <div className="mb-7 w-full max-w-md text-center">
-            <p className="text-[15px] font-normal text-slate-500">
+            <p className="text-base font-normal text-slate-500">
               Create your account to start networking.
             </p>
           </div>
@@ -218,7 +218,7 @@ export default function SignupPage() {
                           <Check className="h-2.5 w-2.5 stroke-[3] text-white" />
                         )}
                       </div>
-                      <span className="text-[13px] text-[#475569] font-normal">
+                      <span className="text-sm text-[#475569] font-normal">
                         Yes, send me the latest updates and news
                       </span>
                     </div>
@@ -271,7 +271,7 @@ export default function SignupPage() {
           </Card>
 
           {step === "password" && (
-            <div className="mt-8 mb-6 w-full max-w-md text-center text-[13px] text-[#64748b]">
+            <div className="mt-8 mb-6 w-full max-w-md text-center text-sm text-[#64748b]">
               <p>
                 By clicking &quot;Sign Up&quot; you agree with our{" "}
                 <a
@@ -302,7 +302,7 @@ export default function SignupPage() {
               href="https://www.solobizcards.com/terms-of-service"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Terms
             </a>
@@ -310,7 +310,7 @@ export default function SignupPage() {
               href="https://www.solobizcards.com/privacy-policy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Privacy
             </a>
@@ -318,7 +318,7 @@ export default function SignupPage() {
               href="https://www.solobizcards.com/pricing"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Subscription
             </a>
@@ -326,7 +326,7 @@ export default function SignupPage() {
               href="https://www.solobizcards.com/support"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Help
             </a>
@@ -334,7 +334,7 @@ export default function SignupPage() {
               href="https://www.solobizcards.com/accessories"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[11px] text-muted-foreground underline-offset-4 no-underline hover:no-underline"
+              className="text-xs text-muted-foreground underline-offset-4 no-underline hover:no-underline"
             >
               Shop
             </a>
