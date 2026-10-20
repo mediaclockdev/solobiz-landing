@@ -16,6 +16,7 @@ import {
   User as FirebaseUser,
   signInWithEmailAndPassword,
   signOut,
+  sendEmailVerification,
 } from "firebase/auth";
 import {
   doc,
@@ -146,10 +147,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const firebaseUser = userCredential.user;
 
       if (!firebaseUser.emailVerified) {
+        try {
+          const continueUrl =
+            typeof window !== "undefined"
+              ? `${window.location.origin}/login?verified=true`
+              : undefined;
+          await sendEmailVerification(
+            firebaseUser,
+            continueUrl
+              ? { url: continueUrl, handleCodeInApp: false }
+              : undefined,
+          );
+        } catch (resendErr: any) {
+          if (resendErr?.code === "auth/unauthorized-continue-uri") {
+            try {
+              await sendEmailVerification(firebaseUser);
+            } catch {}
+          }
+        }
         await signOut(auth);
         return {
           success: false,
-          error: "Please verify your email before logging in.",
+          error: "Please verify your email before logging in. We have sent a new verification link to your email.",
         };
       }
 

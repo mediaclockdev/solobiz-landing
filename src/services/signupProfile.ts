@@ -188,53 +188,10 @@ export interface CompleteSignupProfileInput {
   wantsUpdates?: boolean;
 }
 
-export interface CompleteSignupProfileResult {
-  emailSent: boolean;
-  rateLimited?: boolean;
-}
-
 async function dispatchVerificationEmail(
   user: User,
-  name: string,
-  email: string,
   verifyContinueUrl?: string,
-): Promise<CompleteSignupProfileResult> {
-  try {
-    const origin =
-      typeof window !== "undefined"
-        ? window.location.origin
-        : "https://solobiz-landing.vercel.app";
-
-    const res = await fetch("/api/auth/send-verification-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: user.email || email,
-        name,
-        baseUrl: origin,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.sent) {
-        return { emailSent: true };
-      }
-    } else {
-      const errData = await res.json().catch(() => null);
-      if (
-        res.status === 429 ||
-        errData?.code === "TOO_MANY_ATTEMPTS_TRY_LATER" ||
-        String(errData?.error || "").includes("TOO_MANY_ATTEMPTS_TRY_LATER")
-      ) {
-        console.warn("Verification email is temporarily rate-limited by Firebase.");
-        return { emailSent: false, rateLimited: true };
-      }
-    }
-  } catch (err) {
-    console.warn("Custom email dispatch failed, trying Firebase SDK:", err);
-  }
-
+): Promise<void> {
   try {
     await sendEmailVerification(
       user,
@@ -242,31 +199,17 @@ async function dispatchVerificationEmail(
         ? { url: verifyContinueUrl, handleCodeInApp: false }
         : undefined,
     );
-    return { emailSent: true };
   } catch (sdkErr: any) {
     if (sdkErr?.code === "auth/unauthorized-continue-uri") {
+      console.warn("Domain not allowlisted for continueUrl; sending verification email without continueUrl.");
       try {
         await sendEmailVerification(user);
-        return { emailSent: true };
-      } catch (retryErr: any) {
-        if (
-          retryErr?.code === "auth/too-many-requests" ||
-          String(retryErr?.message || "").includes("TOO_MANY_ATTEMPTS_TRY_LATER")
-        ) {
-          return { emailSent: false, rateLimited: true };
-        }
+      } catch (retryErr) {
         console.warn("sendEmailVerification retry failed:", retryErr);
-        return { emailSent: false };
       }
+    } else {
+      console.warn("sendEmailVerification failed:", sdkErr);
     }
-    if (
-      sdkErr?.code === "auth/too-many-requests" ||
-      String(sdkErr?.message || "").includes("TOO_MANY_ATTEMPTS_TRY_LATER")
-    ) {
-      return { emailSent: false, rateLimited: true };
-    }
-    console.warn("sendEmailVerification fallback failed:", sdkErr);
-    return { emailSent: false };
   }
 }
 
@@ -279,7 +222,7 @@ export async function completeSignupProfile({
   referralCode,
   wantsUpdates = true,
   verifyContinueUrl,
-}: CompleteSignupProfileInput): Promise<CompleteSignupProfileResult> {
+}: CompleteSignupProfileInput): Promise<void> {
   /* Run once per account, ever.
    *
    * The referrer's payout below is a read-modify-write - `childBalance:
@@ -296,7 +239,8 @@ export async function completeSignupProfile({
    */
   const existingReferral = await getDoc(doc(db, "referrals", user.uid));
   if (existingReferral.exists()) {
-    return await dispatchVerificationEmail(user, name, email, verifyContinueUrl);
+    await dispatchVerificationEmail(user, verifyContinueUrl);
+    return;
   }
 
   await updateProfile(user, { displayName: name });
@@ -576,5 +520,5 @@ export async function completeSignupProfile({
     grandchildrenIP: [],
   });
 
-  return await dispatchVerificationEmail(user, name, email, verifyContinueUrl);
+  await dispatchVerificationEmail(user, verifyContinueUrl);
 }
