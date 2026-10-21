@@ -387,7 +387,7 @@ function OnboardingContent() {
           }}
         >
           <DialogContent className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 bottom-auto w-[calc(100%-2rem)] max-w-[420px] rounded-3xl sm:rounded-3xl border border-slate-100 bg-white p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto duration-200 data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95 data-[state=open]:slide-in-from-bottom-0 data-[state=closed]:slide-out-to-bottom-0 [&>button]:right-5 [&>button]:top-5 [&>button]:rounded-full [&>button]:p-1.5 hover:[&>button]:bg-slate-100">
-            <DialogTitle className="sr-only">Account Created</DialogTitle>
+            <DialogTitle className="sr-only">Check your email</DialogTitle>
             <DialogDescription className="sr-only">
               Your account was successfully created. Please check your email for confirmation instructions.
             </DialogDescription>
@@ -397,11 +397,9 @@ function OnboardingContent() {
               </div>
               <div className="space-y-2">
                 <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                  Success!
+                  Check your email
                 </h2>
                 <div className="text-[14px] leading-relaxed text-slate-500">
-                  Your account was successfully created.
-                  <br />
                   We&apos;ve sent confirmation instructions to
                   <br />
                   <span className="mt-0.5 block font-bold text-slate-900 break-all">
@@ -410,8 +408,7 @@ function OnboardingContent() {
                 </div>
               </div>
               <div className="w-full rounded-xl border border-emerald-100 bg-[#f0fff9] p-4 text-[13px] font-medium leading-relaxed text-emerald-700">
-                Please check your spam box too for the email. It may take a few
-                minutes to arrive.
+                Please check your email "spam" folder too for the confirmation link. It may take a few minutes to arrive.
               </div>
               <div className="w-full pt-2">
                 <button
